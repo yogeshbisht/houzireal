@@ -18,7 +18,6 @@ const AccountSignOut = () => {
   const onUserSignOut = async () => {
     setIsSigningOut(true);
     const response = await signOutUserAction();
-    console.log(response);
     if (response.data === "success") {
       dispatch(api.util.resetApiState());
       setIsSigningOut(false);

@@ -8,6 +8,7 @@ import {
   SearchInputValidatorType,
   searchInputValidator,
 } from "@/lib/validators";
+import { PropertyQueryParams } from "@/types/property";
 import { BED_OPTIONS, STANDARD_PROPERTY_OPTIONS } from "@/constants/search";
 import { rentPrices, salePrices } from "@/utilities/property-utils";
 import {
@@ -35,10 +36,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 
 type SearchInputFormProps = {
+  initialSearchQuery: PropertyQueryParams;
   searchType: PropertySearchType;
+  onSearchInput: (searchParams: PropertyQueryParams) => void;
 };
 
-const SearchInputForm = ({ searchType }: SearchInputFormProps) => {
+const SearchInputForm = ({
+  initialSearchQuery,
+  searchType,
+  onSearchInput,
+}: SearchInputFormProps) => {
   const memoizedSalePrices = useMemo(() => salePrices(), []);
   const memoizedRentPrices = useMemo(() => rentPrices(), []);
 
@@ -48,28 +55,27 @@ const SearchInputForm = ({ searchType }: SearchInputFormProps) => {
 
   const getPropertyTypeOptions = (searchType: PropertySearchType) => {
     if (searchType === "sale") {
-      return [
-        ...STANDARD_PROPERTY_OPTIONS,
-        { text: "Multi Family", value: "multi" },
-      ];
+      return [...STANDARD_PROPERTY_OPTIONS, { value: "Multi Family" }];
     }
 
     return [
       ...STANDARD_PROPERTY_OPTIONS,
-      { text: "Apartment", value: "apartment" },
-      { text: "Efficiency", value: "efficiency" },
+      { value: "Apartment" },
+      { value: "Efficiency" },
     ];
   };
 
   const form = useForm<SearchInputValidatorType>({
     resolver: zodResolver(searchInputValidator),
     defaultValues: {
-      address: "",
-      propertyType: [],
-      beds: "any",
-      baths: "any",
-      priceMin: "any",
-      priceMax: "any",
+      address: initialSearchQuery.address || "",
+      propertyType: initialSearchQuery.type
+        ? initialSearchQuery.type.split(",")
+        : [],
+      beds: initialSearchQuery.beds || "any",
+      baths: initialSearchQuery.baths || "any",
+      priceMin: initialSearchQuery.priceMin || "any",
+      priceMax: initialSearchQuery.priceMax || "any",
     },
   });
 
@@ -97,17 +103,12 @@ const SearchInputForm = ({ searchType }: SearchInputFormProps) => {
     if (
       selectedPriceMin !== "any" &&
       selectedPriceMax !== "any" &&
-      parseInt(selectedPriceMax) <= parseInt(selectedPriceMin)
+      Number(selectedPriceMax) <= Number(selectedPriceMin)
     ) {
       const nextPrice = minPriceList[selectedPriceMinIndex + 1];
       form.setValue("priceMax", nextPrice ? nextPrice.value : "any");
     }
   }, [form, selectedPriceMin, selectedPriceMax, minPriceList]);
-
-  useEffect(() => {
-    form.setValue("priceMin", "any");
-    form.setValue("priceMax", "any");
-  }, [form, searchType]);
 
   const onSubmit = (data: SearchInputValidatorType) => {
     const { address, propertyType, beds, baths, priceMin, priceMax } = data;
@@ -120,12 +121,24 @@ const SearchInputForm = ({ searchType }: SearchInputFormProps) => {
       priceMax: priceMax === "any" ? "" : priceMax,
     };
 
-    console.log(searchParams);
+    onSearchInput(searchParams);
+  };
+
+  const onClearSearch = () => {
+    form.reset({
+      address: "",
+      propertyType: [],
+      beds: "any",
+      baths: "any",
+      priceMin: "any",
+      priceMax: "any",
+    });
+    onSearchInput({});
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
         <div className="grid grid-cols-12 gap-4">
           <FormField
             control={form.control}
@@ -187,7 +200,7 @@ const SearchInputForm = ({ searchType }: SearchInputFormProps) => {
                               />
                             </FormControl>
                             <FormLabel className="font-normal">
-                              {option.text}
+                              {option.value}
                             </FormLabel>
                           </FormItem>
                         )}
@@ -312,10 +325,13 @@ const SearchInputForm = ({ searchType }: SearchInputFormProps) => {
             />
           </div>
         </div>
-        <div className="mt-8 flex items-center justify-center">
-          <Button variant="brand" type="submit" className="w-full max-w-80">
+        <div className="mt-8 flex items-center justify-start sm:justify-center">
+          <Button variant="brand" type="submit" className="w-full max-w-60">
             Search
           </Button>
+        </div>
+        <div className="absolute bottom-0 right-0 mt-4 text-right sm:mt-0">
+          <Button onClick={onClearSearch}>Clear</Button>
         </div>
       </form>
     </Form>

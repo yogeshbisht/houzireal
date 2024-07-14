@@ -37,8 +37,8 @@ export interface PropertyQueryParams {
   address?: string;
   sort?: string;
   type?: string;
-  beds?: number;
-  baths?: number;
-  priceMin?: number;
-  priceMax?: number;
+  beds?: string;
+  baths?: string;
+  priceMin?: string;
+  priceMax?: string;
 }

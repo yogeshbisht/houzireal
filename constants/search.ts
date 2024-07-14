@@ -1,13 +1,14 @@
 const STANDARD_PROPERTY_OPTIONS = [
-  { text: "Attached 1/2 Duplex", value: "hduplx" },
-  { text: "Condo", value: "condo" },
-  { text: "House", value: "house" },
-  { text: "Modular", value: "modular" },
-  { text: "Manufactured", value: "manufactured" },
-  { text: "Mobile Home", value: "mobile" },
-  { text: "Townhouse", value: "town" },
-  { text: "Farm", value: "farm" },
-  { text: "Lot/Land", value: "lot" },
+  { value: "Attached 1/2 Duplex" },
+  { value: "Condo" },
+  { value: "House" },
+  { value: "Modular" },
+  { value: "Manufactured" },
+  { value: "Mobile Home" },
+  { value: "Townhouse" },
+  { value: "Farm" },
+  { value: "Lot/Land" },
+  { value: "Single Family" },
 ];
 
 const BED_OPTIONS = [
